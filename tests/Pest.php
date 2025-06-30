@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\User;
+use PHPUnit\Framework\ExpectationFailedException;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -24,9 +27,17 @@ uses(Tests\TestCase::class)->in('Feature');
 |
 */
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
+expect()->extend('toBePhoneNumber', function () {
+    expect($this->value)->toBeString()->toStartWith('+');
+
+    if (strlen($this->value) < 6) {
+        throw new \Exception('phone numbers must be atleast 6 characters');
+    }
+    if (!is_numeric(Str::of($this->value)->after('+')->remove([' ', '-'])->__toString())) {
+        throw new ExpectationFailedException('phone number must be numeric');
+    }
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -39,7 +50,7 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function login($user = null)
 {
-    // ..
+    return test()->actingAs($user ?? User::factory()->create());
 }
